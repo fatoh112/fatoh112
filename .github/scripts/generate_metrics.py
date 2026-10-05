@@ -77,7 +77,7 @@ language_query = """
 query($login: String!, $after: String) {
   user(login: $login) {
     repositories(first: 100, after: $after, ownerAffiliations: [OWNER]) {
-      nodes { languages(first: 100, orderBy: {field: SIZE, direction: DESC}) { nodes { name color size } } }
+      nodes { languages(first: 100, orderBy: {field: SIZE, direction: DESC}) { edges { size node { name color } } } }
       pageInfo { hasNextPage endCursor }
     }
   }
@@ -87,9 +87,10 @@ language_sizes, language_colors, cursor = Counter(), {}, None
 while True:
     repos = graphql(language_query, {"login": LOGIN, "after": cursor})["user"]["repositories"]
     for repo in repos["nodes"]:
-        for language in repo["languages"]["nodes"]:
+        for edge in repo["languages"]["edges"]:
+            language = edge["node"]
             name = language["name"]
-            language_sizes[name] += language["size"]
+            language_sizes[name] += edge["size"]
             if language.get("color"):
                 language_colors[name] = language["color"]
     page = repos["pageInfo"]
