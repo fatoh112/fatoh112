@@ -15,6 +15,20 @@ if not TOKEN:
     print("METRICS_TOKEN is unavailable.", file=sys.stderr)
     raise SystemExit(1)
 
+# Check only the OAuth scope response header; never print the token or user payload.
+scope_request = Request("https://api.github.com/user", headers={
+    "Authorization": "Bearer " + TOKEN, "Accept": "application/vnd.github+json",
+    "User-Agent": "fatoh112-profile-dashboard",
+})
+try:
+    with urlopen(scope_request, timeout=30) as scope_response:
+        token_scopes = {scope.strip() for scope in scope_response.headers.get("X-OAuth-Scopes", "").split(",") if scope.strip()}
+    read_user_scope = bool({"read:user", "user"} & token_scopes)
+    print("METRICS_TOKEN read:user scope: " + ("enabled" if read_user_scope else "not detected"))
+except (HTTPError, URLError, TimeoutError):
+    read_user_scope = None
+    print("METRICS_TOKEN scope status: unavailable")
+
 
 def graphql(query, variables):
     request = Request(API, data=json.dumps({"query": query, "variables": variables}).encode(),
@@ -231,4 +245,5 @@ parts.extend([
 ])
 with open("github-metrics.svg", "w", encoding="utf-8", newline="\n") as output:
     output.write("\n".join(parts) + "\n")
+print("Private contribution aggregate count: " + str(collection["restrictedContributionsCount"]))
 print("Generated privacy-safe GitHub dashboard.")
