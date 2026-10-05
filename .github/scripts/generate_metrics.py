@@ -240,7 +240,7 @@ else:
     parts.append(f'<text x="48" y="{lang_y+71}" fill="#9699aa" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="11">No language data available</text>')
 
 parts.extend([
-    '<text x="30" y="574" fill="#85889a" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="10">Private activity contributes to totals; private repository identities are never included.</text>',
+    '<text x="30" y="574" fill="#85889a" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="10">Private repository identities and repository-level details are never included.</text>',
     '</svg>',
 ])
 with open("github-metrics.svg", "w", encoding="utf-8", newline="\n") as output:
